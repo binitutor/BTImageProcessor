@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BT Image Processor</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-image me-2"></i>BT Image Processor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#upload-section">Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#processing-section">Processing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#analytics-section">Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#history-section">History</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 mb-3">Serverless Image Processing</h1>
+            <p class="lead">Transform, optimize, and manage your images with powerful cloud-based processing</p>
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <section id="upload-section" class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>Upload Images</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                            <h5>Drag & Drop Images Here</h5>
+                            <p class="text-muted">or click to browse</p>
+                            <input type="file" id="fileInput" class="d-none" multiple accept="image/*">
+                        </div>
+                        
+                        <div id="filePreview" class="mt-4"></div>
+                        
+                        <div class="processing-options mt-4">
+                            <h5 class="mb-3">Processing Options</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Resize</label>
+                                    <select class="form-select" id="resizeOption">
+                                        <option value="none">No Resize</option>
+                                        <option value="thumbnail">Thumbnail (150x150)</option>
+                                        <option value="small">Small (300x300)</option>
+                                        <option value="medium">Medium (800x800)</option>
+                                        <option value="large">Large (1920x1920)</option>
+                                        <option value="custom">Custom Size</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Format</label>
+                                    <select class="form-select" id="formatOption">
+                                        <option value="original">Keep Original</option>
+                                        <option value="jpeg">JPEG</option>
+                                        <option value="png">PNG</option>
+                                        <option value="webp">WebP</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Quality (%)</label>
+                                    <input type="range" class="form-range" id="qualitySlider" min="10" max="100" value="85">
+                                    <div class="text-center"><span id="qualityValue">85</span>%</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Filters</label>
+                                    <select class="form-select" id="filterOption">
+                                        <option value="none">No Filter</option>
+                                        <option value="grayscale">Grayscale</option>
+                                        <option value="sepia">Sepia</option>
+                                        <option value="blur">Blur</option>
+                                        <option value="sharpen">Sharpen</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-primary btn-lg" id="processBtn" disabled>
+                                <i class="fas fa-magic me-2"></i>Process Images
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Processing Queue Section -->
+    <section id="processing-section" class="container py-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-tasks me-2"></i>Processing Queue</h3>
+            </div>
+            <div class="card-body">
+                <div id="queueContainer">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No active processing tasks</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section id="analytics-section" class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalImages">0</h3>
+                        <p>Total Processed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="avgProcessTime">0s</h3>
+                        <p>Avg. Process Time</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-compress"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalSaved">0MB</h3>
+                        <p>Space Saved</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="successRate">100%</h3>
+                        <p>Success Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Processing Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="processingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Format Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="formatChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history-section" class="container py-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0"><i class="fas fa-history me-2"></i>Processing History</h3>
+                <button class="btn btn-sm btn-outline-light" id="clearHistoryBtn">
+                    <i class="fas fa-trash me-1"></i>Clear History
+                </button>
+            </div>
+            <div class="card-body">
+                <table id="historyTable" class="table table-dark table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Filename</th>
+                            <th>Original Size</th>
+                            <th>Processed Size</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 BT Image Processor. Serverless Image Processing Solution.</p>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html>
